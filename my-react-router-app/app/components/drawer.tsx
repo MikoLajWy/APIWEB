@@ -118,7 +118,7 @@ export default function MiniDrawer() {
     setOpen(false);
   };
 
-  const onclickhandler = () => {
+  const handleDrawerClick = () => {
     open ? handleDrawerClose() : handleDrawerOpen();
   };
 
@@ -196,13 +196,6 @@ export default function MiniDrawer() {
                         minWidth: 0,
                         justifyContent: "center",
                       },
-                      /*open
-                      ? {
-                          margin: 0,
-                        }
-                      : {
-                          mr: 'auto',
-                        },*/
                     ]}
                   >
                     {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
@@ -276,32 +269,8 @@ export default function MiniDrawer() {
                   />
                 </ListItemButton>
               </ListItem>
-            {/*
-          <ListItem  disablePadding >
-              <ListItemIcon
-                    sx={[
-                      {
-                        minWidth: 0,
-                        justifyContent: "center",
-                      }
-                    ]}
-                  >
-
-              </ListItemIcon>
-                  <ListItemText
-                    sx={[
-                    {
-                      color: IsServerDown? red[500] : green[500],
-                    }
-                  ]}
-                  >
-                    <strong><center>{IsServerDown ? ":(" : ":)"}</center></strong>
-              </ListItemText>
-            </ListItem>
-                         */}
           </List>
         </Drawer>
-
 
         
         {/* MAIN PAGE */}
