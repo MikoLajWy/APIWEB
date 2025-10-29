@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import Register from "~/components/Register";
+import MiniDrawer from "../components/Drawer.tsx";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,5 +9,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <Register />;
+  return <MiniDrawer />;
 }
