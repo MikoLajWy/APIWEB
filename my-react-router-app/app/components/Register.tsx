@@ -1,5 +1,4 @@
-
-import type { FC } from 'react';
+import type { FC } from "react";
 import React, { useState } from "react";
 import { Button, FormControl, FormLabel } from "@mui/material";
 
@@ -21,22 +20,25 @@ const Register: FC = () => {
   const [data, setData] = useState<any>(null);
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch("https://burrowfs.duckdns.org/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: form.email,
-          password: form.password,
-          name: form.name,
-        }),
-      });
+      const response = await fetch(
+        "https://api.burrows.org/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: form.email,
+            password: form.password,
+            name: form.name,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`Błąd HTTP: ${response.status}`);
@@ -56,7 +58,16 @@ const Register: FC = () => {
 
   return (
     <>
-      <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "300px", margin: "auto" }}>
+      <form
+        onSubmit={handleRegister}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          width: "300px",
+          margin: "auto",
+        }}
+      >
         <FormLabel>EMAIL</FormLabel>
         <FormControl>
           <input
