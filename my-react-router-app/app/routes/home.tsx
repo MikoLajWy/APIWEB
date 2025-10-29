@@ -1,6 +1,6 @@
 import type { Route } from "./+types/home";
 import { Welcome } from "../components/welcome";
-import Register from "~/components/register";
+import Register from "~/components/Register";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -11,6 +11,4 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   return <Register />;
-  
-
 }
