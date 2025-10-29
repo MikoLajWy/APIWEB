@@ -1,6 +1,6 @@
 import type { Route } from "./+types/home";
-import { Welcome } from "../components/welcome";
-import MiniDrawer from "~/components/drawer";
+
+import MiniDrawer from "~/components/Drawer";
 
 export function meta({}: Route.MetaArgs) {
   return [
