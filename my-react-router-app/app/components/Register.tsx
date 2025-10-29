@@ -1,116 +1,96 @@
-import type { FC } from "react";
 import React, { useState } from "react";
-import { Button, FormControl, FormLabel } from "@mui/material";
+import type { FormEvent, ChangeEvent } from "react";
+import axios from "axios";
+import type { AxiosInstance } from "axios";
+
+const axiosClient: AxiosInstance = axios.create({
+  baseURL: "/api",
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+});
 
 interface FormData {
+  name: string;
   email: string;
   password: string;
-  name: string;
 }
 
-const Register: FC = () => {
-  const [form, setForm] = useState<FormData>({
+const RegisterForm: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
     email: "",
     password: "",
-    name: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<any>(null);
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-
     try {
-      const response = await fetch(
-        "https://api.burrows.org/api/auth/register",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: form.email,
-            password: form.password,
-            name: form.name,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Błąd HTTP: ${response.status}`);
-      }
-
-      const result = await response.json();
-      setData(result);
-      console.log("Zarejestrowano:", result);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      }
-    } finally {
-      setLoading(false);
+      const response = await axiosClient.post("/auth/register", formData);
+      console.log("✅ Odpowiedź API:", response.data);
+      alert("Użytkownik zarejestrowany!");
+    } catch (error: any) {
+      console.error("❌ Błąd:", error.response?.data || error.message);
+      alert("Wystąpił błąd przy rejestracji.");
     }
   };
 
   return (
-    <>
-      <form
-        onSubmit={handleRegister}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "1rem",
-          width: "300px",
-          margin: "auto",
-        }}
-      >
-        <FormLabel>EMAIL</FormLabel>
-        <FormControl>
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
-        </FormControl>
+    <form onSubmit={handleSubmit} style={styles.form}>
+      <h2>Rejestracja</h2>
 
-        <FormLabel>PASSWORD</FormLabel>
-        <FormControl>
-          <input
-            type="password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required
-          />
-        </FormControl>
+      <label>
+        Imię:
+        <input
+          type="text"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+      </label>
 
-        <FormLabel>NAME</FormLabel>
-        <FormControl>
-          <input
-            type="text"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            required
-          />
-        </FormControl>
+      <label>
+        Email:
+        <input
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+      </label>
 
-        <Button type="submit" variant="contained" disabled={loading}>
-          {loading ? "Rejestrowanie..." : "Zarejestruj"}
-        </Button>
-      </form>
+      <label>
+        Hasło:
+        <input
+          type="password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+      </label>
 
-      {error && <p style={{ color: "red" }}>❌ {error}</p>}
-      {data && (
-        <p style={{ color: "green" }}>
-          ✅ Rejestracja zakończona sukcesem! {JSON.stringify(data)}
-        </p>
-      )}
-    </>
+      <button type="submit">Zarejestruj</button>
+    </form>
   );
 };
 
-export default Register;
+const styles: Record<string, React.CSSProperties> = {
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    width: "250px",
+    margin: "50px auto",
+  },
+};
+
+export default RegisterForm;

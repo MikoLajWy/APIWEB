@@ -5,4 +5,13 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
+  server: {
+    proxy: {
+      "/api": {
+        target: "https://api.burrowfs.org",
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
 });
