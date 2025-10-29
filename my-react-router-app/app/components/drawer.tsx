@@ -30,6 +30,8 @@ import Avatar from "@mui/material/Avatar";
 import { Breadcrumbs, colors, Link, Skeleton } from "@mui/material";
 import { BaseModal } from "./Modal";
 import { useState } from "react";
+import StorageIcon from '@mui/icons-material/Storage';
+import { green, red } from "@mui/material/colors";
 
 const drawerWidth = 240;
 
@@ -118,7 +120,7 @@ export default function MiniDrawer() {
     console.log("false");
   };
 
-  const onclickhandler = () => {
+  const handleDrawerClick = () => {
     console.log("checker");
     open ? handleDrawerClose() : handleDrawerOpen();
   };
@@ -139,6 +141,8 @@ export default function MiniDrawer() {
 
   const handleClose = () => setShow(false);
 
+  const IsServerDown = false
+
   return (
     <>
       <Box sx={{ display: "flex" }}>
@@ -155,7 +159,7 @@ export default function MiniDrawer() {
                       px: 2.5,
                     },
                   ]}
-                  onClick={onclickhandler}
+                  onClick={handleDrawerClick}
                 >
                   <ListItemIcon
                     sx={[
@@ -211,9 +215,11 @@ export default function MiniDrawer() {
                   <ListItemText
                     primary={text}
                     sx={[
+                      {},
                       open
                         ? {
                             opacity: 1,
+                            px:1
                           }
                         : {
                             opacity: 0,
@@ -228,7 +234,82 @@ export default function MiniDrawer() {
           <IconButton>
             <Avatar>H</Avatar>
           </IconButton>
+          <Divider />
+          
+          <List>
+              <ListItem  disablePadding sx={{ display: "block" }}>
+                <ListItemButton
+                  onClick={() => {}}
+                  sx={[
+                    {
+                      minHeight: 48,
+                      px: 2.5,
+
+                    },
+                    open
+                      ? {
+                          justifyContent: "initial",
+                        }
+                      : {
+                          justifyContent: "center",
+                        },
+                  ]}
+                >
+                  <ListItemIcon
+                    sx={[
+                      {
+                        minWidth: 0,
+                        justifyContent: "center",
+                        color: IsServerDown? red[500] : green[500]
+                      }
+                    ]}
+                  >
+                    <StorageIcon/>
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={" <- Server Status"}
+                    sx={[
+                      open
+                        ? {
+                            opacity: 1,
+                            px:1
+                          }
+                        : {
+                            opacity: 0,
+                          },
+                    ]}
+                  />
+                </ListItemButton>
+              </ListItem>
+            {/*
+          <ListItem  disablePadding >
+              <ListItemIcon
+                    sx={[
+                      {
+                        minWidth: 0,
+                        justifyContent: "center",
+                      }
+                    ]}
+                  >
+
+              </ListItemIcon>
+                  <ListItemText
+                    sx={[
+                    {
+                      color: IsServerDown? red[500] : green[500],
+                    }
+                  ]}
+                  >
+                    <strong><center>{IsServerDown ? ":(" : ":)"}</center></strong>
+              </ListItemText>
+            </ListItem>
+                         */}
+          </List>
         </Drawer>
+
+
+        
+        {/* MAIN PAGE */}
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Box
             sx={{
