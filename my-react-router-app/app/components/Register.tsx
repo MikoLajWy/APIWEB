@@ -1,7 +1,9 @@
-import React, { useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
 import axios from "axios";
 import type { AxiosInstance } from "axios";
+import AlertSnackBar from "./Snackbar";
+import { useState } from "react";
+import type { SnackbarCloseReason } from "@mui/material/Snackbar";
 
 const axiosClient: AxiosInstance = axios.create({
   baseURL: "/api",
@@ -34,52 +36,77 @@ const RegisterForm: React.FC = () => {
     try {
       const response = await axiosClient.post("/auth/register", formData);
       console.log("✅ Odpowiedź API:", response.data);
-      alert("Użytkownik zarejestrowany!");
+      handleOpenSnack("Użytkownik został zarejestrowany");
     } catch (error: any) {
       console.error("❌ Błąd:", error.response?.data || error.message);
-      alert("Wystąpił błąd przy rejestracji.");
+      handleOpenSnack("Błąd przy rejestracji");
     }
   };
 
+  //For snackbar
+  const [snack, setSnack] = useState(false);
+  const [message, setMessage] = useState("");
+  const handleOpenSnack = (mes: string) => {
+    setSnack(true);
+    setMessage(mes);
+  };
+  const handleCloseSnack = (
+    event: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnack(false);
+  };
+
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-      <h2>Rejestracja</h2>
+    <>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <h2>Rejestracja</h2>
 
-      <label>
-        Imię:
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-      </label>
+        <label>
+          Imię:
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </label>
 
-      <label>
-        Email:
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </label>
+        <label>
+          Email:
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </label>
 
-      <label>
-        Hasło:
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-      </label>
+        <label>
+          Hasło:
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </label>
 
-      <button type="submit">Zarejestruj</button>
-    </form>
+        <button type="submit">Zarejestruj</button>
+      </form>
+
+      <AlertSnackBar
+        shouldBeOpen={snack}
+        text={message}
+        handleClose={() => handleCloseSnack}
+      ></AlertSnackBar>
+    </>
   );
 };
 
