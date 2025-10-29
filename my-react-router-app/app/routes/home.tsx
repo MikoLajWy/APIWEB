@@ -1,5 +1,6 @@
 import type { Route } from "./+types/home";
-import { Main2 } from "../components/Main";
+import { Welcome } from "../components/welcome";
+import MiniDrawer from "~/components/drawer";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,5 +10,5 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  return <Main2 />;
+  return <MiniDrawer />;
 }
