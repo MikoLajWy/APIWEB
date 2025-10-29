@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
-import axios from "axios";
-import type { AxiosInstance } from "axios";
-
-const axiosClient: AxiosInstance = axios.create({
-  baseURL: "/api",
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
+import axiosClient from "./axiosClient";
 
 interface FormData {
   name: string;
@@ -34,6 +25,7 @@ const RegisterForm: React.FC = () => {
     try {
       const response = await axiosClient.post("/auth/register", formData);
       console.log("✅ Odpowiedź API:", response.data);
+      console.log("✅ Status:", response.status);
       alert("Użytkownik zarejestrowany!");
     } catch (error: any) {
       console.error("❌ Błąd:", error.response?.data || error.message);
