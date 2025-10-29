@@ -110,16 +110,13 @@ export default function MiniDrawer() {
 
   const handleDrawerOpen = () => {
     setOpen(true);
-    console.log("true");
   };
 
   const handleDrawerClose = () => {
     setOpen(false);
-    console.log("false");
   };
 
   const onclickhandler = () => {
-    console.log("checker");
     open ? handleDrawerClose() : handleDrawerOpen();
   };
 
@@ -130,10 +127,8 @@ export default function MiniDrawer() {
     setShow(true);
     if (a == 0) {
       setIsLogin(true);
-      console.log("a jest warte:" + a);
     } else if (a == 1) {
       setIsLogin(false);
-      console.log(a);
     }
   };
 
