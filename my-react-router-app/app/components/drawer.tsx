@@ -29,9 +29,10 @@ import MailIcon from "@mui/icons-material/Mail";
 import Avatar from "@mui/material/Avatar";
 import { Breadcrumbs, colors, Link, Skeleton } from "@mui/material";
 import { BaseModal } from "./Modal";
-import { useState } from "react";
-import StorageIcon from '@mui/icons-material/Storage';
+import { useState, useEffect } from "react";
+import StorageIcon from "@mui/icons-material/Storage";
 import { green, red } from "@mui/material/colors";
+import axiosClient from "./axiosClient";
 
 const drawerWidth = 240;
 
@@ -125,6 +126,7 @@ export default function MiniDrawer() {
   //Functions for Login and Register button
   const [show, setShow] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [isServerDown, setIsServerDown] = useState(true);
   const handleClick = (a: number) => {
     setShow(true);
     if (a == 0) {
@@ -136,7 +138,14 @@ export default function MiniDrawer() {
 
   const handleClose = () => setShow(false);
 
-  const IsServerDown = false
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await axiosClient.get("/status");
+      console.log(data.status);
+      setIsServerDown(false);
+    };
+    fetchData().catch(console.error);
+  }, []);
 
   return (
     <>
@@ -207,7 +216,7 @@ export default function MiniDrawer() {
                       open
                         ? {
                             opacity: 1,
-                            px:1
+                            px: 1,
                           }
                         : {
                             opacity: 0,
@@ -223,56 +232,54 @@ export default function MiniDrawer() {
             <Avatar>H</Avatar>
           </IconButton>
           <Divider />
-          
+
           <List>
-              <ListItem  disablePadding sx={{ display: "block" }}>
-                <ListItemButton
-                  onClick={() => {}}
+            <ListItem disablePadding sx={{ display: "block" }}>
+              <ListItemButton
+                onClick={() => {}}
+                sx={[
+                  {
+                    minHeight: 48,
+                    px: 2.5,
+                  },
+                  open
+                    ? {
+                        justifyContent: "initial",
+                      }
+                    : {
+                        justifyContent: "center",
+                      },
+                ]}
+              >
+                <ListItemIcon
                   sx={[
                     {
-                      minHeight: 48,
-                      px: 2.5,
-
+                      minWidth: 0,
+                      justifyContent: "center",
+                      color: isServerDown ? red[500] : green[500],
                     },
-                    open
-                      ? {
-                          justifyContent: "initial",
-                        }
-                      : {
-                          justifyContent: "center",
-                        },
                   ]}
                 >
-                  <ListItemIcon
-                    sx={[
-                      {
-                        minWidth: 0,
-                        justifyContent: "center",
-                        color: IsServerDown? red[500] : green[500]
-                      }
-                    ]}
-                  >
-                    <StorageIcon/>
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={" <- Server Status"}
-                    sx={[
-                      open
-                        ? {
-                            opacity: 1,
-                            px:1
-                          }
-                        : {
-                            opacity: 0,
-                          },
-                    ]}
-                  />
-                </ListItemButton>
-              </ListItem>
+                  <StorageIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={" <- Server Status"}
+                  sx={[
+                    open
+                      ? {
+                          opacity: 1,
+                          px: 1,
+                        }
+                      : {
+                          opacity: 0,
+                        },
+                  ]}
+                />
+              </ListItemButton>
+            </ListItem>
           </List>
         </Drawer>
 
-        
         {/* MAIN PAGE */}
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Box

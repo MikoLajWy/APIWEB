@@ -1,5 +1,5 @@
 import type { Route } from "./+types/home";
-import MiniDrawer from "../components/Drawer.tsx";
+import MiniDrawer from "../components/drawer.tsx";
 
 export function meta({}: Route.MetaArgs) {
   return [
