@@ -28,7 +28,7 @@ import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
 import Avatar from "@mui/material/Avatar";
 import { Breadcrumbs, colors, Link, Skeleton } from "@mui/material";
-import { BaseModal } from "./Modal";
+import { BaseModal } from "./modal";
 import { useState, useEffect } from "react";
 import StorageIcon from "@mui/icons-material/Storage";
 import { green, red } from "@mui/material/colors";
