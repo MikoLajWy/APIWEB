@@ -34,6 +34,9 @@ import StorageIcon from "@mui/icons-material/Storage";
 import { green, red } from "@mui/material/colors";
 import axiosClient from "./axiosClient";
 import cstheme from "./palette.tsx"
+import AlertSnackBar from "./AlertSnackbar";
+import type { SnackbarCloseReason } from "@mui/material/Snackbar";
+import { useContext } from "react";
 
 const drawerWidth = 240;
 
@@ -149,9 +152,29 @@ export default function MiniDrawer() {
     fetchData().catch(console.error);
   }, []);
 
+  //For snackbar
+  const [snack, setSnack] = useState(false);
+
+  const [message, setMessage] = useState("");
+
+  const handleOpenSnack = (mes: string) => {
+    setSnack(true);
+    setMessage(mes);
+    console.log("kms");
+  };
+
+  const handleCloseSnack = () => {
+    setSnack(false);
+  };
+
   return (
     <ThemeProvider theme={cstheme}>
-      <Box sx={{ display: "flex"}}>
+      <AlertSnackBar
+        shouldBeOpen={snack}
+        text={message}
+        handleClose={handleCloseSnack}
+      ></AlertSnackBar>
+      <Box sx={{ display: "flex" }}>
         <CssBaseline enableColorScheme />
          <Drawer variant="permanent" open={open} >
           <List sx={{backgroundColor: 'secondary.main' }}>
@@ -344,7 +367,12 @@ export default function MiniDrawer() {
           </Box>
         </Box>
       </Box>
-      <BaseModal open2={show} handleClosin={handleClose} isLogin={isLogin} />
+      <BaseModal
+        open2={show}
+        handleClosin={handleClose}
+        isLogin={isLogin}
+        handleSnack={handleOpenSnack}
+      />
     </ThemeProvider>
   );
 }

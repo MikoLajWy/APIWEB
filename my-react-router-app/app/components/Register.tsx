@@ -1,5 +1,5 @@
-import React, { useState } from "react";
 import type { FormEvent, ChangeEvent } from "react";
+import { useState } from "react";
 import axiosClient from "./axiosClient";
 
 interface FormData {
@@ -8,12 +8,18 @@ interface FormData {
   password: string;
 }
 
-const RegisterForm: React.FC = () => {
+interface RegisterProps {
+  handleSnack: (mes: string) => void;
+}
+
+const RegisterForm = (props: RegisterProps) => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     password: "",
   });
+
+  //SnackBar
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -25,53 +31,54 @@ const RegisterForm: React.FC = () => {
     try {
       const response = await axiosClient.post("/auth/register", formData);
       console.log("✅ Odpowiedź API:", response.data);
-      console.log("✅ Status:", response.status);
-      alert("Użytkownik zarejestrowany!");
+      props.handleSnack("✅ Użytkownik został zarejestrowany");
     } catch (error: any) {
       console.error("❌ Błąd:", error.response?.data || error.message);
-      alert("Wystąpił błąd przy rejestracji.");
+      props.handleSnack("❌ Błąd przy rejestracji");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={styles.form}>
-      <h2>Rejestracja</h2>
+    <>
+      <form onSubmit={handleSubmit} style={styles.form}>
+        <h2>Rejestracja</h2>
 
-      <label>
-        Imię:
-        <input
-          type="text"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-        />
-      </label>
+        <label>
+          Imię:
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </label>
 
-      <label>
-        Email:
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </label>
+        <label>
+          Email:
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </label>
 
-      <label>
-        Hasło:
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-      </label>
+        <label>
+          Hasło:
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </label>
 
-      <button type="submit">Zarejestruj</button>
-    </form>
+        <button type="submit">Zarejestruj</button>
+      </form>
+    </>
   );
 };
 

@@ -2,6 +2,7 @@ import Modal from "@mui/material/Modal";
 import { Box } from "@mui/material";
 import Register from "./Register";
 import Login from "./Login";
+import AlertSnackBar from "./AlertSnackbar";
 
 const style = {
   position: "absolute",
@@ -18,6 +19,7 @@ interface BaseModalProp {
   open2: boolean;
   handleClosin: () => void;
   isLogin: boolean;
+  handleSnack: (mes: string) => void;
 }
 
 export function BaseModal(props: BaseModalProp) {
@@ -29,7 +31,13 @@ export function BaseModal(props: BaseModalProp) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style}>{props.isLogin ? <Login /> : <Register />}</Box>
+        <Box sx={style}>
+          {props.isLogin ? (
+            <Login />
+          ) : (
+            <Register handleSnack={props.handleSnack} />
+          )}
+        </Box>
       </Modal>
     </div>
   );
