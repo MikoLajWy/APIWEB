@@ -14,9 +14,6 @@ interface AlertSnackBarProps {
 const alertSnackBar = (props: AlertSnackBarProps) => {
   const action = (
     <React.Fragment>
-      <Button color="secondary" size="small" onClick={props.handleClose}>
-        UNDO
-      </Button>
       <IconButton
         size="small"
         aria-label="close"

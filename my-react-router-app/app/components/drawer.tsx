@@ -30,6 +30,9 @@ import Avatar from "@mui/material/Avatar";
 import { Breadcrumbs, colors, Link, Skeleton } from "@mui/material";
 import { BaseModal } from "./Modal";
 import { useState } from "react";
+import AlertSnackBar from "./AlertSnackbar";
+import type { SnackbarCloseReason } from "@mui/material/Snackbar";
+import { useContext } from "react";
 
 const drawerWidth = 240;
 
@@ -134,8 +137,28 @@ export default function MiniDrawer() {
 
   const handleClose = () => setShow(false);
 
+  //For snackbar
+  const [snack, setSnack] = useState(false);
+
+  const [message, setMessage] = useState("");
+
+  const handleOpenSnack = (mes: string) => {
+    setSnack(true);
+    setMessage(mes);
+    console.log("kms");
+  };
+
+  const handleCloseSnack = () => {
+    setSnack(false);
+  };
+
   return (
     <>
+      <AlertSnackBar
+        shouldBeOpen={snack}
+        text={message}
+        handleClose={handleCloseSnack}
+      ></AlertSnackBar>
       <Box sx={{ display: "flex" }}>
         <CssBaseline enableColorScheme />
         <AppBar position="fixed" open={open}></AppBar>
@@ -285,7 +308,12 @@ export default function MiniDrawer() {
           </Box>
         </Box>
       </Box>
-      <BaseModal open2={show} handleClosin={handleClose} isLogin={isLogin} />
+      <BaseModal
+        open2={show}
+        handleClosin={handleClose}
+        isLogin={isLogin}
+        handleSnack={handleOpenSnack}
+      />
     </>
   );
 }

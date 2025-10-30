@@ -1,12 +1,11 @@
 import type { FormEvent, ChangeEvent } from "react";
 import axios from "axios";
 import type { AxiosInstance } from "axios";
-import AlertSnackBar from "./Snackbar";
+import { useContext } from "react";
 import { useState } from "react";
-import type { SnackbarCloseReason } from "@mui/material/Snackbar";
 
 const axiosClient: AxiosInstance = axios.create({
-  baseURL: "/api",
+  baseURL: "/apiskibidibb",
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
@@ -19,12 +18,18 @@ interface FormData {
   password: string;
 }
 
-const RegisterForm: React.FC = () => {
+interface RegisterProps {
+  handleSnack: (mes: string) => void;
+}
+
+const RegisterForm = (props: RegisterProps) => {
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
     password: "",
   });
+
+  //SnackBar
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
@@ -36,28 +41,11 @@ const RegisterForm: React.FC = () => {
     try {
       const response = await axiosClient.post("/auth/register", formData);
       console.log("✅ Odpowiedź API:", response.data);
-      handleOpenSnack("Użytkownik został zarejestrowany");
+      props.handleSnack("✅ Użytkownik został zarejestrowany");
     } catch (error: any) {
       console.error("❌ Błąd:", error.response?.data || error.message);
-      handleOpenSnack("Błąd przy rejestracji");
+      props.handleSnack("❌ Błąd przy rejestracji");
     }
-  };
-
-  //For snackbar
-  const [snack, setSnack] = useState(false);
-  const [message, setMessage] = useState("");
-  const handleOpenSnack = (mes: string) => {
-    setSnack(true);
-    setMessage(mes);
-  };
-  const handleCloseSnack = (
-    event: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setSnack(false);
   };
 
   return (
@@ -100,12 +88,6 @@ const RegisterForm: React.FC = () => {
 
         <button type="submit">Zarejestruj</button>
       </form>
-
-      <AlertSnackBar
-        shouldBeOpen={snack}
-        text={message}
-        handleClose={() => handleCloseSnack}
-      ></AlertSnackBar>
     </>
   );
 };
