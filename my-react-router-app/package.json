@@ -17,6 +17,7 @@
     "@react-router/serve": "^7.9.2",
     "axios": "^1.13.1",
     "isbot": "^5.1.31",
+    "js-md5": "^0.8.3",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router": "^7.9.2"

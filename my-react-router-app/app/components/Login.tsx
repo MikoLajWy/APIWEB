@@ -1,39 +1,63 @@
 import React, { useState } from "react";
-import type { FormEvent, ChangeEvent } from "react";
-import axiosClient from "./axiosClient";
+import axios from "axios";
 
-interface LoginData {
-  email: string;
+interface User {
+  Id: string;
+  Email: string;
+  Name: string;
+}
+
+interface LoginFormData {
+  username: string;
   password: string;
 }
 
-const LoginForm: React.FC = () => {
-  const [loginData, setLoginData] = useState<LoginData>({
-    email: "",
+const Login: React.FC = () => {
+  const [formData, setFormData] = useState<LoginFormData>({
+    username: "",
     password: "",
   });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setLoginData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const handleSubmit = async (e: FormEvent): Promise<void> => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await axiosClient.get("/user/me", {
-        params: loginData,
-      });
-      const token = response.data.Id;
-      console.log("✅ Token:", token);
+    setLoading(true);
+    setError("");
 
-      alert("Zalogowano pomyślnie!");
-    } catch (error: any) {
-      console.error(
-        "❌ Błąd logowania:",
-        error.response?.data || error.message
-      );
-      alert("Wystąpił błąd przy logowaniu.");
+    try {
+      const api = axios.create({
+        baseURL: "",
+        withCredentials: false,
+      });
+
+      const response = await api.get<User>("/api/user/me", {
+        headers: {
+          Authorization: `Digest username="${formData.username}", realm="testrealm@example.com"`,
+        },
+        auth: undefined,
+      });
+
+      console.log("Login successful:", response.data);
+    } catch (err: any) {
+      if (err.code === "ERR_NETWORK") {
+        setError("Problem z połączeniem. Sprawdź konfigurację proxy.");
+      } else if (err.response?.status === 401) {
+        setError("Nieprawidłowa nazwa użytkownika lub hasło");
+      } else {
+        setError(err.response?.data?.message || "Logowanie nie powiodło się");
+      }
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,12 +65,14 @@ const LoginForm: React.FC = () => {
     <form onSubmit={handleSubmit} style={styles.form}>
       <h2>Logowanie</h2>
 
+      {error && <div style={styles.error}>{error}</div>}
+
       <label>
-        Email:
+        Nazwa użytkownika:
         <input
-          type="email"
-          name="email"
-          value={loginData.email}
+          type="text"
+          name="username"
+          value={formData.username}
           onChange={handleChange}
           required
         />
@@ -57,7 +83,7 @@ const LoginForm: React.FC = () => {
         <input
           type="password"
           name="password"
-          value={loginData.password}
+          value={formData.password}
           onChange={handleChange}
           required
         />
@@ -78,4 +104,4 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-export default LoginForm;
+export default Login;
