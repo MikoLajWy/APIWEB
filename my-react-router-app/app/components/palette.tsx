@@ -5,7 +5,7 @@ const cstheme = createTheme({
   palette: {
     primary: {
       light: '#D4D7D9',
-      main: '#344955',
+      main: 'rgba(43, 61, 71, 1)',
       dark: '#23343e',
       contrastText: '#000',
     },
