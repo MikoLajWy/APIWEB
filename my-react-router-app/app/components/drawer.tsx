@@ -11,7 +11,7 @@ import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar, {
   type AppBarProps as MuiAppBarProps,
 } from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
+
 import List from "@mui/material/List";
 import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
@@ -34,8 +34,6 @@ import StorageIcon from "@mui/icons-material/Storage";
 import { green, red } from "@mui/material/colors";
 import axiosClient from "./axiosClient";
 import AlertSnackBar from "./AlertSnackbar";
-import type { SnackbarCloseReason } from "@mui/material/Snackbar";
-import { useContext } from "react";
 
 const drawerWidth = 240;
 
