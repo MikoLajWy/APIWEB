@@ -33,6 +33,7 @@ import { useState, useEffect } from "react";
 import StorageIcon from "@mui/icons-material/Storage";
 import { green, red } from "@mui/material/colors";
 import axiosClient from "./axiosClient";
+import cstheme from "./palette.tsx"
 
 const drawerWidth = 240;
 
@@ -90,6 +91,7 @@ const Drawer = styled(MuiDrawer, {
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
+
   variants: [
     {
       props: ({ open }) => open,
@@ -148,14 +150,13 @@ export default function MiniDrawer() {
   }, []);
 
   return (
-    <>
-      <Box sx={{ display: "flex" }}>
+    <ThemeProvider theme={cstheme}>
+      <Box sx={{ display: "flex"}}>
         <CssBaseline enableColorScheme />
-        <AppBar position="fixed" open={open}></AppBar>
-        <Drawer variant="permanent" open={open}>
-          <List>
+         <Drawer variant="permanent" open={open} >
+          <List sx={{backgroundColor: 'secondary.main' }}>
             {["Drawer"].map((text) => (
-              <ListItem key={text} disablePadding sx={{ display: "block" }}>
+              <ListItem key={text} disablePadding sx={{ display: "block", color:'secondary.contrastText'}}>
                 <ListItemButton
                   sx={[
                     {
@@ -173,16 +174,16 @@ export default function MiniDrawer() {
                       },
                     ]}
                   >
-                    {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+                    {open ? <ChevronLeftIcon sx={{color:'secondary.contrastText'}}/> : <ChevronRightIcon sx={{color:'secondary.contrastText'}}/>}
                   </ListItemIcon>
                 </ListItemButton>
               </ListItem>
             ))}
           </List>
-          <Divider />
+          <Divider sx={{backgroundColor:'primary.main'}}/>
           <List>
             {["Login ", "Register"].map((text, index) => (
-              <ListItem key={text} disablePadding sx={{ display: "block" }}>
+              <ListItem key={text} disablePadding sx={{ display: "block" , backgroundColor:'primary.light', color:'primary.contrastText'}}>
                 <ListItemButton
                   onClick={() => handleClick(index)}
                   sx={[
@@ -207,7 +208,7 @@ export default function MiniDrawer() {
                       },
                     ]}
                   >
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                    {index % 2 === 0 ? <InboxIcon sx={{color:'primary.contrastText'}}/> : <MailIcon sx={{color:'primary.contrastText'}}/>}
                   </ListItemIcon>
                   <ListItemText
                     primary={text}
@@ -227,11 +228,11 @@ export default function MiniDrawer() {
               </ListItem>
             ))}
           </List>
-          <Divider />
+          <Divider sx={{backgroundColor:'primary.main'}}/>
           <IconButton>
             <Avatar>H</Avatar>
           </IconButton>
-          <Divider />
+          <Divider sx={{backgroundColor:'primary.main'}}/>
 
           <List>
             <ListItem disablePadding sx={{ display: "block" }}>
@@ -281,12 +282,11 @@ export default function MiniDrawer() {
         </Drawer>
 
         {/* MAIN PAGE */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Box component="main" sx={{ flexGrow: 1, p: 3, height:'100vh', backgroundColor:'secondary.dark'}}>
           <Box
             sx={{
               flexGrow: 1,
               p: 0.5,
-              marginTop: 1,
               marginBottom: 1,
               borderRadius: 2,
             }}
@@ -297,9 +297,11 @@ export default function MiniDrawer() {
                 p: 1,
                 m: 1,
                 borderRadius: 3,
+                padding: 2,
+                backgroundColor: 'secondary.light'
               }}
             >
-              <Breadcrumbs maxItems={3} aria-label="breadcrumb">
+              <Breadcrumbs aria-label="breadcrumb" sx={{color: 'secondary.contrastText'}}>
                 <Link underline="hover" color="inherit" href="#">
                   Home
                 </Link>
@@ -312,7 +314,7 @@ export default function MiniDrawer() {
                 <Link underline="hover" color="inherit" href="#">
                   New Collection
                 </Link>
-                <Typography sx={{ color: "text.primary" }}>Belts</Typography>
+                <Typography sx={{ color: "secondary.main" }}>Belts</Typography>
               </Breadcrumbs>
             </Box>
           </Box>
@@ -343,6 +345,6 @@ export default function MiniDrawer() {
         </Box>
       </Box>
       <BaseModal open2={show} handleClosin={handleClose} isLogin={isLogin} />
-    </>
+    </ThemeProvider>
   );
 }
