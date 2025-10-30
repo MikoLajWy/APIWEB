@@ -1,16 +1,5 @@
 import type { FormEvent, ChangeEvent } from "react";
-import axios from "axios";
-import type { AxiosInstance } from "axios";
-import { useContext } from "react";
-import { useState } from "react";
-
-const axiosClient: AxiosInstance = axios.create({
-  baseURL: "/apiskibidibb",
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  },
-});
+import axiosClient from "./axiosClient";
 
 interface FormData {
   name: string;
