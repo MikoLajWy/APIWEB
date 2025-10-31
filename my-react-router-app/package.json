@@ -15,6 +15,7 @@
     "@mui/material": "^7.3.4",
     "@react-router/node": "^7.9.2",
     "@react-router/serve": "^7.9.2",
+    "@smithy/md5-js": "^4.2.4",
     "axios": "^1.13.1",
     "isbot": "^5.1.31",
     "js-md5": "^0.8.3",

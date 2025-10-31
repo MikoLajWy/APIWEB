@@ -1,63 +1,190 @@
 import React, { useState } from "react";
-import axios from "axios";
+import type { FormEvent, ChangeEvent } from "react";
+import axiosClient from "./axiosClient";
+import { Md5 } from "@smithy/md5-js";
 
-interface User {
-  Id: string;
-  Email: string;
-  Name: string;
-}
-
-interface LoginFormData {
-  username: string;
+interface LoginData {
+  email: string;
   password: string;
 }
 
-const Login: React.FC = () => {
-  const [formData, setFormData] = useState<LoginFormData>({
-    username: "",
+interface DigestAuthInfo {
+  realm?: string;
+  nonce?: string;
+  algorithm?: string;
+  qop?: string;
+  opaque?: string;
+}
+
+const LoginForm: React.FC = () => {
+  const [loginData, setLoginData] = useState<LoginData>({
+    email: "",
     password: "",
   });
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setLoginData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const md5Hex = async (input: string): Promise<string> => {
+    const hasher = new Md5();
+    hasher.update(new TextEncoder().encode(input));
+    const digest = await hasher.digest();
+    return Array.from(digest)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  };
+
+  const generateCnonce = (length = 16): string => {
+    const bytes = new Uint8Array(length / 2);
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+    return Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  };
+
+  const buildAuthHeader = (opts: {
+    username: string;
+    realm?: string;
+    nonce?: string;
+    uri: string;
+    response: string;
+    algorithm?: string;
+    qop?: string;
+    nc?: string;
+    cnonce?: string;
+    opaque?: string;
+  }): string => {
+    const parts: string[] = [];
+    parts.push(`Digest username="${opts.username}"`);
+    if (opts.realm) parts.push(`realm="${opts.realm}"`);
+    if (opts.nonce) parts.push(`nonce="${opts.nonce}"`);
+    parts.push(`uri="${opts.uri}"`);
+    parts.push(`response="${opts.response}"`);
+    if (opts.algorithm) parts.push(`algorithm=${opts.algorithm}`);
+    if (opts.opaque) parts.push(`opaque="${opts.opaque}"`);
+    if (opts.qop && opts.nc && opts.cnonce) {
+      parts.push(`qop=${opts.qop}`);
+      parts.push(`nc=${opts.nc}`);
+      parts.push(`cnonce="${opts.cnonce}"`);
+    }
+    return parts.join(", ");
+  };
+
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
     try {
-      const api = axios.create({
-        baseURL: "",
-        withCredentials: false,
-      });
-
-      const response = await api.get<User>("/api/user/me", {
+      const initial = await axiosClient.get("/user/me", {
         headers: {
-          Authorization: `Digest username="${formData.username}", realm="testrealm@example.com"`,
+          "X-Requested-With": "XMLHttpRequest",
+          Accept: "application/json",
         },
-        auth: undefined,
+        validateStatus: () => true,
       });
 
-      console.log("Login successful:", response.data);
-    } catch (err: any) {
-      if (err.code === "ERR_NETWORK") {
-        setError("Problem z połączeniem. Sprawdź konfigurację proxy.");
-      } else if (err.response?.status === 401) {
-        setError("Nieprawidłowa nazwa użytkownika lub hasło");
+      axiosClient.interceptors.response.use((response) => {
+        return response;
+      });
+
+      console.log("Initial status:", initial.status);
+      console.log(
+        "Initial WWW-Authenticate:",
+        initial.headers["www-authenticate"]
+      );
+
+      const authHeader = initial.headers["www-authenticate"];
+      if (authHeader) {
+        const parseWwwAuthenticate = (h: string) => {
+          const parsed: DigestAuthInfo = {};
+          const regex = /(\w+)=("(.*?)"|([^,\s]+))/g;
+          let m: RegExpExecArray | null;
+          while ((m = regex.exec(h)) !== null) {
+            const key = m[1];
+            const value = m[3] ?? m[4];
+            parsed[key as keyof DigestAuthInfo] = value;
+          }
+          return parsed;
+        };
+
+        const parsed = parseWwwAuthenticate(String(authHeader));
+        let { realm, nonce, algorithm, opaque, qop } = parsed;
+
+        if (qop && qop.includes(",")) {
+          const parts = qop.split(",").map((s) => s.trim());
+          qop = parts.includes("auth") ? "auth" : parts[0];
+        }
+
+        const method =
+          (initial.config?.method?.toString().toUpperCase() as string) || "GET";
+        const uri = (initial.config?.url as string) || "/user/me";
+
+        const cnonce = generateCnonce(16);
+        const nc = "00000001";
+
+        const ha1 = await md5Hex(
+          `${loginData.email}:${realm ?? ""}:${loginData.password}`
+        );
+        const ha2 = await md5Hex(`${method}:${uri}`);
+
+        const responseDigest = qop
+          ? await md5Hex(`${ha1}:${nonce}:${nc}:${cnonce}:${qop}:${ha2}`)
+          : await md5Hex(`${ha1}:${nonce}:${ha2}`);
+
+        const authorization = buildAuthHeader({
+          username: loginData.email,
+          realm,
+          nonce,
+          uri,
+          response: responseDigest,
+          algorithm: algorithm ?? "MD5",
+          qop,
+          nc,
+          cnonce,
+          opaque,
+        });
+
+        axiosClient.defaults.headers.common["Authorization"] = authorization;
+        console.log("Generated Authorization header:", authorization);
+
+        const authed = await axiosClient.get("/user/me", {
+          validateStatus: () => true,
+        });
+
+        console.log("Auth response status:", authed.status);
+        console.log("Auth response data:", authed.data);
+        console.log("Response digest:", responseDigest);
+
+        if (authed.status === 200) {
+          try {
+            localStorage.setItem("user", JSON.stringify(authed.data));
+          } catch {
+            /* ignore */
+          }
+        } else {
+          console.warn(
+            "Authenticated request did not return 200:",
+            authed.status
+          );
+        }
       } else {
-        setError(err.response?.data?.message || "Logowanie nie powiodło się");
+        if (initial.status === 200) {
+          try {
+            localStorage.setItem("user", JSON.stringify(initial.data));
+          } catch {
+            /* ignore */
+          }
+        } else {
+          console.warn(
+            "Initial request responded without WWW-Authenticate:",
+            initial.status
+          );
+        }
       }
-      console.error("Login error:", err);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error("Digest auth error:", error);
     }
   };
 
@@ -65,14 +192,12 @@ const Login: React.FC = () => {
     <form onSubmit={handleSubmit} style={styles.form}>
       <h2>Logowanie</h2>
 
-      {error && <div style={styles.error}>{error}</div>}
-
       <label>
-        Nazwa użytkownika:
+        Email:
         <input
-          type="text"
-          name="username"
-          value={formData.username}
+          type="email"
+          name="email"
+          value={loginData.email}
           onChange={handleChange}
           required
         />
@@ -83,7 +208,7 @@ const Login: React.FC = () => {
         <input
           type="password"
           name="password"
-          value={formData.password}
+          value={loginData.password}
           onChange={handleChange}
           required
         />
@@ -104,4 +229,4 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-export default Login;
+export default LoginForm;
