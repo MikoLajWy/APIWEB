@@ -78,15 +78,7 @@ const LoginForm: React.FC = () => {
     e.preventDefault();
     try {
       const initial = await axiosClient.get("/user/me", {
-        headers: {
-          "X-Requested-With": "XMLHttpRequest",
-          Accept: "application/json",
-        },
         validateStatus: () => true,
-      });
-
-      axiosClient.interceptors.response.use((response) => {
-        return response;
       });
 
       console.log("Initial status:", initial.status);
